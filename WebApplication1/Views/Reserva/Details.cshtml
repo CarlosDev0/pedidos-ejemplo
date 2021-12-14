@@ -1,0 +1,190 @@
+﻿@model WebApplication1.Models.EncabezadoDetalleViewModel
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Detalle Alojamiento</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Lugar)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Lugar)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TipoAlojamiento)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TipoAlojamiento)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Valor)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Valor)
+        </dd>
+        <dt>
+            <label>Número Habitaciones</label>
+        </dt>
+
+        <dd>
+            <label>@ViewBag.numeroHabi</label>
+        </dd>
+    </dl>
+</div>
+<b>Descripción Alojamiento</b>
+<table class="table">
+    <tr>
+        <th>
+            Detalle
+        </th>
+        <th>
+            Cantidad
+        </th>
+    </tr>
+
+    @foreach (var item in ViewBag.Alojamiento)
+    {
+        <tr>
+            <td>@item.detalle</td>
+            <td>@item.Cantidad</td>
+        </tr>
+    }
+
+</table>
+<b>Descripción Habitación</b>
+<table class="table">
+    <tr>
+        <th>Habitacion</th>
+        <th>Detalle</th>
+        <th>Cantidad</th>
+    </tr>
+
+    @foreach (var item in ViewBag.Habitaciones)
+    {
+        <tr>
+            <td>@item.habitacion</td>
+            <td>@item.detalle</td>
+            <td>@item.Cantidad</td>
+        </tr>
+    }
+
+</table>
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    t /*body {
+        height: 80em;
+        overflow: scroll;
+    }*/
+</style>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript">
+    function LlenarTabla() {
+        $("#tablaExample").show();
+
+        $("#tablaExample tr").each(function (index) {
+            //$(this).remove();
+
+            let element = document.getElementById("tablaExample");
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        })
+        var validar = 0;
+
+        if ($("#fechaInicio").val() == '' || $("#fechaFin").val() == '') {
+            alert("Debe seleccionar un rango de fechas para realizar la busqueda");
+            validar = 1;
+        }
+        if (validar == 0) {
+            $.ajax({
+                url: "/Reserva/Llenar",
+                type: 'Post',
+                cache: false,
+                data: { fechaini: $("#fechaInicio").val(), fechaFin: $("#fechaFin").val(), tipo: $("#TipoAlojamiento").val(), personas: $("#txtCanPersonas").val(), municipio: $("#Municipio").val() },
+                success: function (response) {
+                    var total = '';
+                    var cuerpo = '';
+                    var encabezdoTabla = '<table id="example" class="display" style="width:100%"> <thead> <tr>';
+                    encabezdoTabla += '<th>Id</th>';
+                    encabezdoTabla += '<th>Lugar</th>';
+                    encabezdoTabla += '<th>Alojamiento</th>';
+                    encabezdoTabla += '<th>TipoAlojamiento</th>';
+                    encabezdoTabla += '<th>CapacidadMaxima</th>';
+                    encabezdoTabla += '<th>Valor</th>';
+                    encabezdoTabla += '<th>Opciones</th>';
+                    encabezdoTabla += '</tr> <thead><tbody>';
+                    //$("#tablaExample").append(encabezdoTabla);
+                    total = encabezdoTabla;
+                    $.each(response, function (i, item) {
+                        var tds = '<tr  id="filaCargada">';
+                        tds += '<td>' + item.Id + '</td>';
+                        tds += '<td>' + item.Lugar + '</td>';
+                        tds += '<td>' + item.Alojamiento + '</td>';
+                        tds += '<td>' + item.TipoAlojamiento + '</td>';
+                        tds += '<td>' + item.CapacidadMaxima + '</td>';
+                        tds += '<td>' + item.Valor + '</td>';
+                        tds += '<td><input type="button" value="Reservar" id="btnBuscar" name="btnBuscar" onclick="create(' + item.Id + ')" class="btn btn-info " /></td>';
+                        tds += '</tr>';
+                        //$("#tablaExample").append(tds);
+                        cuerpo = cuerpo + tds;
+                    });
+                    total = total + cuerpo + '</tbody></table>';
+                    $("#tablaExample").append(total);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+
+
+    }
+
+    function create(parametro) {
+        if ($("#fechaInicio").val() == '' || $("#fechaFin").val() == '') {
+            alert("Debe seleccionar un rango de fecha para realizar la reserva");
+        } else {
+            var id = parametro + "," + $("#fechaInicio").val() + "," + $("#fechaFin").val();
+            window.location.href = 'create/' + id;
+        }
+    }
+
+    $("#fechaInicio").change(function () {
+        fechaFin.min = new Date($("#fechaInicio").val()).toISOString().split("T")[0]
+    });
+</script>
