@@ -1,2 +1,7 @@
-Version Inicial en rama mater
-V1.0
+
+
+
+=======
+Version 2 Nuevas Ideas
+V2.0
+
